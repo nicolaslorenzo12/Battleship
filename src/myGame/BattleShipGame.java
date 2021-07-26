@@ -2,6 +2,7 @@ package myGame;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Scanner;
 
 public class BattleShipGame {
     public static void main(String[] args) {
@@ -14,7 +15,62 @@ public class BattleShipGame {
 
         char[][] gameBoard = createGameBoard(gameBoardLength,water,ship,shipNumber);
         printGameBoard(gameBoard, water, ship);
+        int undetectedShipNumber = shipNumber;
+        while(undetectedShipNumber > 0){
+            int[] guessCoordinates = getUserCoordinates(gameBoardLength);
+            char locationViewUpdate = evaluateGuessAndGetTheTarget(guessCoordinates,gameBoard, ship, water, hit, miss);
+            if(locationViewUpdate == hit){
+                undetectedShipNumber--;
+            }
+            gameBoard = updateGameBoard(gameBoard, guessCoordinates, locationViewUpdate);
+            printGameBoard(gameBoard, water, ship);
+        }
     }
+
+    private static char[][] updateGameBoard(char[][] gameBoard, int[] guessCoordinates, char locationViewUpdate) {
+        int row = guessCoordinates[0];
+        int col = guessCoordinates[1];
+        gameBoard[row][col] = locationViewUpdate;
+        return gameBoard;
+    }
+
+    private static char evaluateGuessAndGetTheTarget(int[] guessCoordinates, char[][] gameBoard, char ship, char water, char hit, char miss) {
+        String message;
+        int row = guessCoordinates[0];
+        int col = guessCoordinates[1];
+        char target = gameBoard[row][col];
+        if(target == ship){
+            message = "hit!";
+            target = hit;
+        }
+        else if(target == water){
+            message = "Miss!";
+            target = miss;
+        }
+        else{
+            message = "Already hit!";
+        }
+        System.out.println(message);
+        return target;
+    }
+
+    private static int[] getUserCoordinates(int gameBoardLength) {
+        int row;
+        int col;
+
+        do{
+            System.out.print("Row: ");
+            row = new Scanner(System.in).nextInt();
+        }
+        while(row < 1 || row > gameBoardLength + 1);
+        do{
+            System.out.print("Column: ");
+            col = new Scanner(System.in).nextInt();
+        }
+        while(col < 1 || col > gameBoardLength + 1);
+        return new int[]{row - 1, col - 1};
+    }
+
 
     private static void printGameBoard(char[][] gameBoard, char water, char ship) {
         int gameBoardLength = gameBoard.length;
